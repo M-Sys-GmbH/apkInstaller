@@ -111,15 +111,25 @@ namespace apkInstaller {
     }
 
     bool checkAdbInstalled() {
-        int ret = std::system("adb version >nul 2>&1"); // Windows
+        int ret = 0;
+
+#ifdef _WIN32
+        ret = std::system("adb version >nul 2>&1");
         if (ret != 0) {
-            ret = std::system("adb version >/dev/null 2>&1"); // Linux/macOS
+            fs::path localAdb = fs::current_path() / "adb.exe";
+            if (fs::exists(localAdb) && fs::is_regular_file(localAdb)) {
+                std::string cmd = "\"" + localAdb.string() + "\" version >nul 2>&1";
+                ret = std::system(cmd.c_str());
+            }
         }
+#else
+        ret = std::system("adb version >/dev/null 2>&1");
+#endif
 
         if (ret != 0) {
             std::cerr << "Error: adb is not installed or not in PATH.\n"
                 << "Please install Android Platform Tools.\n"
-                << "  - Linux: sudo apt install android-tools-adb\n"
+                << "  - Linux: sudo apt install adb\n"
                 << "  - macOS: brew install android-platform-tools\n"
                 << "  - Windows: Install from https://developer.android.com/studio/releases/platform-tools\n";
             return false;
