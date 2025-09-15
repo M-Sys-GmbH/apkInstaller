@@ -20,7 +20,7 @@ It validates APK files, automatically discovers them in directories, and install
 Clone the repository and build with CMake:
 
 ```bash
-git clone https://github.com/<your-org-or-user>/apkInstaller.git
+git clone https://github.com/M-Sys-GmbH/apkInstaller.git
 cd apkInstaller
 mkdir build && cd build
 cmake ..
