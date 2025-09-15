@@ -6,9 +6,11 @@
 #include <sstream>
 #include <array>
 
+using FileCloser = int(*)(FILE*);
+
 namespace apkInstaller {
 
-    std::string toLower(const std::string& s) {
+    static std::string toLower(const std::string& s) {
         std::string result = s;
         std::ranges::transform(result, result.begin(), ::tolower);
         return result;
@@ -128,13 +130,13 @@ namespace apkInstaller {
 
     std::vector<std::string> getAdbDevices() {
         std::vector<std::string> devices;
-        std::array<char, 128> buffer;
+        std::array<char, 128> buffer{};
         std::string result;
 
 #ifdef _WIN32
-        std::unique_ptr<FILE, decltype(&_pclose)> pipe(_popen("adb devices", "r"), _pclose);
+        std::unique_ptr<FILE, FileCloser> pipe(_popen("adb devices", "r"), _pclose);
 #else
-        std::unique_ptr<FILE, decltype(&pclose)> pipe(popen("adb devices", "r"), pclose);
+        std::unique_ptr<FILE, FileCloser> pipe(popen("adb devices", "r"), pclose);
 #endif
 
         if (!pipe) {
